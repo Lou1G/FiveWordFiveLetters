@@ -1,5 +1,4 @@
 ﻿using System;
-
 using System.IO;
 
 using System.Linq;
@@ -9,55 +8,55 @@ namespace FiveWordFiveLetters
 {
 
     internal class Program
-
     {
         static void Main()
-
         {
             string filePath = "words_alpha.txt";
-            String file = File.ReadAllText(filePath);
-            char[] separators = { '\r', '\n' };
-            String[] words = file.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            string[] words = File.ReadAllLines(filePath).Where(x => x.Length == 5 && x.Distinct().Count() == 5).ToArray();
+            Console.WriteLine($"{words.Length} words.");
 
-            List<string> words5 = new List<string>();
-
+            var dictionary = new Dictionary<int, string>();
             foreach (string word in words)
             {
-                if (word.Length == 5)
+                var bit = 0;
+                foreach (char c in word)
                 {
-                    words5.Add(word);
+                    bit |= 1 << (c - 'a');
                 }
+                if (dictionary.ContainsKey(bit) ) continue;
+                dictionary.Add(bit, word);
             }
 
-            List<string> words5final = new List<string>();
-            foreach (string word in words5)
-            {
-                bool isUnique = true;
-                char[] chars = word.ToCharArray();
-                for (int k = 1; k < chars.Length - 1; k++)
-                {
-                    for (int i = k; i < chars.Length; i++)
-                    {
-                        if (chars[i] == chars[i - 1])
-                        {
-                            isUnique = false;
-                            break;
-                        }
-                    }
-                }
-                if (isUnique)
-                {
-                    words5final.Add(word);
-                }
-            }
-            foreach (string word in words5final)
-            {
-                Console.WriteLine(word);
-            }
-
+            Console.WriteLine($"{dictionary.Count} unique words.");
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            RecursiveFindSolution(dictionary, dictionary.Keys.ToArray(), 5, dictionary.Count()-1);
+            watch.Stop();
+            Console.WriteLine($"find in {watch.ElapsedMilliseconds} ms.");
         }
-
+        
+        static void RecursiveFindSolution(Dictionary<int, string> dictionary, int[] words, int wordLength, int index, string solution = "", int mask = 0)
+        {
+            if(solution.Where(c => c == ' ').Count() == 4)
+            {
+                Console.WriteLine(solution);
+                return;
+            }
+            if (mask == 0)
+            {
+                Parallel.For(0, index, x =>
+                {
+                    RecursiveFindSolution(dictionary, words, wordLength, x-1, dictionary[words[x]], words[x]);
+                });
+            }
+            else
+            {
+                for (int i = index; i >= 0; i--)
+                {
+                    if ((mask & words[i]) != 0) continue;
+                    RecursiveFindSolution(dictionary, words, wordLength, i - 1, string.Concat(solution, " ", dictionary[words[i]]).TrimStart(), mask | words[i]);
+                }
+            }
+        }
     }
-
 }
 
