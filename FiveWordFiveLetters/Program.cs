@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace FiveWordFiveLetters
 
-{
+        {
 
     internal class Program
     {
@@ -22,7 +22,7 @@ namespace FiveWordFiveLetters
                 {
                     bit |= 1 << (c - 'a');
                 }
-                if (dictionary.ContainsKey(bit) ) continue;
+                if (dictionary.ContainsKey(bit)) continue;
                 dictionary.Add(bit, word);
             }
 
@@ -32,10 +32,10 @@ namespace FiveWordFiveLetters
             watch.Stop();
             Console.WriteLine($"find in {watch.ElapsedMilliseconds} ms.");
         }
-        
+
         static void RecursiveFindSolution(Dictionary<int, string> dictionary, int[] words, int wordLength, int index, string solution = "", int mask = 0)
         {
-            if(solution.Where(c => c == ' ').Count() == 4)
+            if (solution.Where(c => c == ' ').Count() == 4)
             {
                 Console.WriteLine(solution);
                 return;
@@ -44,7 +44,7 @@ namespace FiveWordFiveLetters
             {
                 Parallel.For(0, index, x =>
                 {
-                    RecursiveFindSolution(dictionary, words, wordLength, x-1, dictionary[words[x]], words[x]);
+                    RecursiveFindSolution(dictionary, words, wordLength, x - 1, dictionary[words[x]], words[x]);
                 });
             }
             else
@@ -58,4 +58,3 @@ namespace FiveWordFiveLetters
         }
     }
 }
-
